@@ -1,0 +1,22 @@
+name: Project checks
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: DevPulse tests
+        run: npm test
+        working-directory: devpulse-ci-diagnostics
+      - name: Build and test BuildGraph
+        working-directory: buildgraph-cpp-test-impact
+        run: |
+          npm run build
+          ctest --test-dir build --output-on-failure
+          npm test
+      - name: QueueGuard tests
+        run: npm test
+        working-directory: queueguard-node-event-processor

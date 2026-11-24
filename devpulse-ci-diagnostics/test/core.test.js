@@ -1,0 +1,11 @@
+'use strict';const test=require('node:test'),assert=require('node:assert/strict');
+const c=require('../src/core');
+test('categorizes errors',()=>{assert.equal(c.classifyLog('build timeout'),'timeout');assert.equal(c.classifyLog('compiler error'),'compile');assert.equal(c.classifyLog('assertion error'),'test');assert.equal(c.classifyLog('missing dependency'),'dependency')});
+test('unrecognized logs are unknown',()=>assert.equal(c.classifyLog('something'),'unknown'));
+test('validates id and service',()=>{assert.throws(()=>c.validateRun({id:'?',service:'svc-1',status:'passed',duration_ms:1,log:''}));assert.throws(()=>c.validateRun({id:'run-1',service:'bad',status:'passed',duration_ms:1,log:''}))});
+test('rejects invalid status and duration',()=>{assert.throws(()=>c.validateRun({id:'run-1',service:'svc-1',status:'other',duration_ms:1,log:''}));assert.throws(()=>c.validateRun({id:'run-1',service:'svc-1',status:'passed',duration_ms:-3,log:''}))});
+test('deduplicates persisted runs',async()=>{const s=new c.MemoryStore();assert.equal(await s.insert(c.fixtureRun(1)),true);assert.equal(await s.insert(c.fixtureRun(1)),false);assert.equal((await s.list()).length,1)});
+test('summarizes 8000 synthetic runs',()=>{const m=c.summarize(Array.from({length:8000},(_,i)=>c.fixtureRun(i)));assert.equal(m.total,8000);assert.equal(m.failed,616);assert.equal(Object.keys(m.byService).length,24)});
+test('maps tests to modules',()=>{const a=c.impactedTests(['module-3']);assert.ok(a.length>0);assert.ok(a.every(x=>x.startsWith('test-')))});
+test('returns zero for unknown valid module',()=>assert.deepEqual(c.impactedTests(['module-999']),[]));
+test('rejects invalid module identifiers',()=>assert.throws(()=>c.impactedTests(['../bad'])));

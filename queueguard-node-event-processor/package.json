@@ -1,0 +1,18 @@
+{
+  "name": "queueguard-job-event-pipeline",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Independent developer infrastructure queue service with optional MongoDB persistence",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js",
+    "benchmark": "node scripts/benchmark.js",
+    "test:mongo-contract": "node --test test/mongo*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  }
+}

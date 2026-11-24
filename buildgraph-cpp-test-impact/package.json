@@ -1,0 +1,5 @@
+{
+ "name":"buildgraph-dependency-analyzer","version":"1.0.0","private":true,
+ "scripts":{"build":"cmake -S . -B build && cmake --build build -j 2", "test":"node --test test/*.test.js", "start":"node server.js", "benchmark":"node scripts-benchmark.js"},
+ "engines":{"node":">=20"}
+}

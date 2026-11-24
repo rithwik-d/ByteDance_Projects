@@ -1,0 +1,12 @@
+# Local builds and dependencies
+build/
+node_modules/
+coverage/
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+*.log
+.DS_Store

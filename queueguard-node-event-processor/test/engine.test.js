@@ -1,0 +1,7 @@
+'use strict';const{test}=require('node:test');const assert=require('node:assert/strict');const{QueueEngine}=require('../engine');
+test('processes successful job',()=>{let q=new QueueEngine();q.enqueue({id:'evt-a',type:'search.index'});q.flushVirtual();assert.equal(q.metrics().processed,1);});
+test('duplicate event rejected without reprocessing',()=>{let q=new QueueEngine();q.enqueue({id:'evt-a',type:'search.index'});assert.deepEqual(q.enqueue({id:'evt-a',type:'search.index'}),{accepted:false,reason:'duplicate'});q.flushVirtual();assert.equal(q.metrics().duplicates,1);assert.equal(q.metrics().processed,1)});
+test('transient retries succeed',()=>{let q=new QueueEngine();q.enqueue({id:'evt-a',type:'application.received',failuresBeforeSuccess:2});q.flushVirtual();assert.equal(q.metrics().processed,1);assert.equal(q.metrics().retried,2);});
+test('permanent failure deadletters',()=>{let q=new QueueEngine();q.enqueue({id:'evt-a',type:'notification.send',failuresBeforeSuccess:10});q.flushVirtual();assert.equal(q.metrics().deadLettered,1);assert.equal(q.metrics().retried,2);});
+test('validates event IDs/types',()=>{let q=new QueueEngine();assert.throws(()=>q.enqueue({id:'bad',type:'search.index'}));assert.throws(()=>q.enqueue({id:'evt-a',type:'unsupported'}));});
+test('enforces queue capacity',()=>{let q=new QueueEngine({capacity:1});q.enqueue({id:'evt-1',type:'search.index'});assert.throws(()=>q.enqueue({id:'evt-2',type:'search.index'}));});

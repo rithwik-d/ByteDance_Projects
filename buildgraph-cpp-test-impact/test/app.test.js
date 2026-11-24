@@ -1,0 +1,5 @@
+'use strict';const test=require('node:test'),assert=require('node:assert/strict');const{createServer,runCommand}=require('../server');
+test('C++ CLI indexes 96 modules and 240 tests',async()=>{const out=await runCommand(['stats']);assert.equal(out.modules,96);assert.equal(out.tests,240);assert.equal(out.back_edges,0)});
+test('C++ reverse-dependency traversal selects tests',async()=>{const x=await runCommand(['impact','module-7']);assert.ok(x.affected_modules>1);assert.ok(x.selected_test_count>0);assert.equal(x.selected_test_count,x.selected_tests.length)});
+test('unknown modules fail gracefully',async()=>{await assert.rejects(runCommand(['impact','module-999']))});
+test('HTTP stats and impact endpoints',async()=>{const server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));try{let b=`http://127.0.0.1:${server.address().port}`;assert.equal((await(await fetch(b+'/api/stats')).json()).modules,96);assert.ok((await(await fetch(b+'/api/impact?modules=module-1')).json()).selected_test_count>0);assert.equal((await fetch(b+'/api/impact?modules=%3Brm')).status,400)}finally{await new Promise(r=>server.close(r))}});

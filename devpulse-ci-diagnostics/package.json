@@ -1,0 +1,9 @@
+{
+  "name": "devpulse-ci-diagnostics",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Educational Node.js CI diagnostics and test-impact dashboard with optional PostgreSQL persistence",
+  "scripts": {"start": "node src/server.js", "test": "node --test test/*.test.js", "benchmark": "node scripts/benchmark.js", "seed": "node scripts/seed.js"},
+  "engines": {"node": ">=20"},
+  "dependencies": {"pg": "^8.13.1"}
+}
